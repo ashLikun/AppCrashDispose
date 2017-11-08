@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="customactivityoncrash_error_activity_error_occurred_explanation">一个意想不到的错误发生,为给您带来的不便。</string>
+    <string name="customactivityoncrash_error_activity_restart_app">重启应用</string>
+    <string name="customactivityoncrash_error_activity_close_app">关闭应用</string>
+    <string name="customactivityoncrash_error_activity_error_details_copy">复制错误</string>
+    <string name="customactivityoncrash_error_activity_error_details_clipboard_label">错误信息</string>
+</resources>
