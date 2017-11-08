@@ -309,13 +309,13 @@ public final class CustomActivityOnCrash {
         errorDetails.append(versionName);
         errorDetails.append("\n");
         errorDetails.append("当前时间:");
-        errorDetails.append("dateFormat.format(currentDate)");
+        errorDetails.append(dateFormat.format(currentDate));
         errorDetails.append("\n");
         //Added a space between line feeds to fix #18.
         //Ideally, we should not use this method at all... It is only formatted this way because of coupling with the default error activity.
         //We should move it to a method that returns a bean, and let anyone format it as they wish.
         errorDetails.append("设备:");
-        errorDetails.append("getDeviceModelName()");
+        errorDetails.append(getDeviceModelName());
         errorDetails.append("\n");
         errorDetails.append("\n");
         errorDetails.append("错误细节:  ");
