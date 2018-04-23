@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
@@ -42,14 +41,6 @@ public final class DefaultErrorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //This is needed to avoid a crash if the developer has not specified
-        //an app-level theme that extends Theme.AppCompat
-        TypedArray a = obtainStyledAttributes(R.styleable.AppCompatTheme);
-        if (!a.hasValue(R.styleable.AppCompatTheme_windowActionBar)) {
-            setTheme(R.style.Theme_AppCompat_Light_DarkActionBar);
-        }
-        a.recycle();
 
         setContentView(R.layout.customactivityoncrash_default_error_activity);
 
