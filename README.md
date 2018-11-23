@@ -1,11 +1,27 @@
-# **AndroidEventBus**
-    android 异常捕获
+[![Release](https://jitpack.io/v/ashLikun/AppCrashDispose.svg)](https://jitpack.io/#ashLikun/AppCrashDispose)
 
-### 1.用法
-使用前，对于Android Studio的用户，可以选择添加:
-    
-	compile 'com.github.ashLikun.AppCrashDispose:0.0.1'
 
+AppCrashDispose项目简介
+    app异常处理
+    1：调试版本使用错误页面提示
+    2：线上使用永不crash
+## 使用方法
+
+build.gradle文件中添加:
+```gradle
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+并且:
+
+```gradle
+    dependencies {
+        implementation 'com.github.ashLikun:AppCrashDispose:{latest version}'
+     }
+```
 ### 2.API
     AppCrashConfig.Builder.create(this)
                     .enabled(true) //default: true
