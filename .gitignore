@@ -7,7 +7,3 @@
 /build
 /captures
 .externalNativeBuild
-library/src/main/java/com/ashlikun/appcrash/DefaultErrorActivity.java
-.idea/inspectionProfiles/Project_Default.xml
-library/src/main/java/com/ashlikun/appcrash/AppCrashInitProvider.java
-library/src/main/java/com/ashlikun/appcrash/AppCrashConfig.java
