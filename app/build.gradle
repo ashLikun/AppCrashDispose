@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation rootProject.ext.designVersion
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation project(':library')
