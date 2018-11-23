@@ -28,9 +28,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 import java.io.PrintWriter;
@@ -74,8 +71,7 @@ public final class CustomActivityOnCrash {
     /**
      * 安装
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void install(@Nullable Application app) {
+    public static void install(Application app) {
         try {
             if (app != null) {
                 final Thread.UncaughtExceptionHandler ool = Thread.getDefaultUncaughtExceptionHandler();
@@ -242,8 +238,8 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The stacktrace, or null if not provided.
      */
-    @Nullable
-    public static String getStackTraceFromIntent(@NonNull Intent intent) {
+
+    public static String getStackTraceFromIntent(Intent intent) {
         return intent.getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE);
     }
 
@@ -253,8 +249,8 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The config, or null if not provided.
      */
-    @Nullable
-    public static AppCrashConfig getConfigFromIntent(@NonNull Intent intent) {
+
+    public static AppCrashConfig getConfigFromIntent(Intent intent) {
         return (AppCrashConfig) intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_CONFIG);
     }
 
@@ -264,8 +260,8 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The activity log, or null if not provided.
      */
-    @Nullable
-    public static String getActivityLogFromIntent(@NonNull Intent intent) {
+
+    public static String getActivityLogFromIntent(Intent intent) {
         return intent.getStringExtra(CustomActivityOnCrash.EXTRA_ACTIVITY_LOG);
     }
 
@@ -276,8 +272,8 @@ public final class CustomActivityOnCrash {
      * @param intent  The Intent. Must not be null.
      * @return The full error details.
      */
-    @NonNull
-    public static String getAllErrorDetailsFromIntent(@NonNull Context context, @NonNull Intent intent) {
+
+    public static String getAllErrorDetailsFromIntent(Context context, Intent intent) {
         //I don't think that this needs localization because it's a development string...
 
         Date currentDate = new Date();
@@ -315,7 +311,7 @@ public final class CustomActivityOnCrash {
     }
 
 
-    public static void restartApplication(@NonNull Activity activity, AppCrashConfig config) {
+    public static void restartApplication(Activity activity, AppCrashConfig config) {
         final Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         activity.startActivity(intent);
@@ -333,7 +329,7 @@ public final class CustomActivityOnCrash {
      * @param activity The current error activity. Must not be null.
      * @param config   The config object as obtained by calling getConfigFromIntent.
      */
-    public static void closeApplication(@NonNull Activity activity, @NonNull AppCrashConfig config) {
+    public static void closeApplication(Activity activity, AppCrashConfig config) {
         if (config.getEventListener() != null) {
             config.getEventListener().onCloseAppFromErrorActivity();
         }
@@ -347,8 +343,6 @@ public final class CustomActivityOnCrash {
      *
      * @return the current configuration
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @NonNull
     public static AppCrashConfig getConfig() {
         return config;
     }
@@ -359,8 +353,7 @@ public final class CustomActivityOnCrash {
      *
      * @param config the configuration to use
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void setConfig(@NonNull AppCrashConfig config) {
+    public static void setConfig(AppCrashConfig config) {
         CustomActivityOnCrash.config = config;
         uninstall();
     }
@@ -374,7 +367,7 @@ public final class CustomActivityOnCrash {
      * @param activityClass The activity class to launch when the app crashes
      * @return true if this stack trace is conflictive and the activity must not be launched, false otherwise
      */
-    private static boolean isStackTraceLikelyConflictive(@NonNull Throwable throwable, @NonNull Class<? extends Activity> activityClass) {
+    private static boolean isStackTraceLikelyConflictive(Throwable throwable, Class<? extends Activity> activityClass) {
         do {
             StackTraceElement[] stackTrace = throwable.getStackTrace();
             for (StackTraceElement element : stackTrace) {
@@ -393,8 +386,8 @@ public final class CustomActivityOnCrash {
      * @param dateFormat DateFormat to use to convert from Date to String
      * @return The formatted date, or "Unknown" if unable to determine it.
      */
-    @Nullable
-    private static String getBuildDateAsString(@NonNull Context context, @NonNull DateFormat dateFormat) {
+
+    private static String getBuildDateAsString(Context context, DateFormat dateFormat) {
         long buildDate;
         try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
@@ -423,7 +416,7 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return The version name, or "Unknown if unable to determine it.
      */
-    @NonNull
+
     private static String getVersionName(Context context) {
         try {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
@@ -439,7 +432,7 @@ public final class CustomActivityOnCrash {
      *
      * @return The device model name (i.e., "LGE Nexus 5")
      */
-    @NonNull
+
     private static String getDeviceModelName() {
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
@@ -456,8 +449,8 @@ public final class CustomActivityOnCrash {
      * @param s The string to capitalize
      * @return The capitalized string
      */
-    @NonNull
-    private static String capitalize(@Nullable String s) {
+
+    private static String capitalize(String s) {
         if (s == null || s.length() == 0) {
             return "";
         }
@@ -478,8 +471,8 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return The guessed restart activity class, or null if no suitable one is found
      */
-    @Nullable
-    private static Class<? extends Activity> guessRestartActivityClass(@NonNull Context context) {
+
+    private static Class<? extends Activity> guessRestartActivityClass(Context context) {
         Class<? extends Activity> resolvedActivityClass;
 
         //If action is defined, use that
@@ -501,8 +494,8 @@ public final class CustomActivityOnCrash {
      * @return A valid activity class, or null if no suitable one is found
      */
     @SuppressWarnings("unchecked")
-    @Nullable
-    private static Class<? extends Activity> getRestartActivityClassWithIntentFilter(@NonNull Context context) {
+
+    private static Class<? extends Activity> getRestartActivityClassWithIntentFilter(Context context) {
         Intent searchedIntent = new Intent().setAction(INTENT_ACTION_RESTART_ACTIVITY).setPackage(context.getPackageName());
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(searchedIntent,
                 PackageManager.GET_RESOLVED_FILTER);
@@ -528,8 +521,8 @@ public final class CustomActivityOnCrash {
      * @return A valid activity class, or null if no suitable one is found
      */
     @SuppressWarnings("unchecked")
-    @Nullable
-    private static Class<? extends Activity> getLauncherActivity(@NonNull Context context) {
+
+    private static Class<? extends Activity> getLauncherActivity(Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
         if (intent != null) {
             try {
@@ -551,8 +544,8 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return The guessed error activity class, or the default error activity if not found
      */
-    @NonNull
-    private static Class<? extends Activity> guessErrorActivityClass(@NonNull Context context) {
+
+    private static Class<? extends Activity> guessErrorActivityClass(Context context) {
         Class<? extends Activity> resolvedActivityClass;
 
         //If action is defined, use that
@@ -574,8 +567,8 @@ public final class CustomActivityOnCrash {
      * @return A valid activity class, or null if no suitable one is found
      */
     @SuppressWarnings("unchecked")
-    @Nullable
-    private static Class<? extends Activity> getErrorActivityClassWithIntentFilter(@NonNull Context context) {
+
+    private static Class<? extends Activity> getErrorActivityClassWithIntentFilter(Context context) {
         Intent searchedIntent = new Intent().setAction(INTENT_ACTION_ERROR_ACTIVITY).setPackage(context.getPackageName());
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(searchedIntent,
                 PackageManager.GET_RESOLVED_FILTER);

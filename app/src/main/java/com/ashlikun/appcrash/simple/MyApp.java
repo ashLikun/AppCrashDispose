@@ -21,7 +21,6 @@ public class MyApp extends Application {
                 .showRestartButton(true) //default: true
                 .trackActivities(true) //default: false
                 .minTimeBetweenCrashesMs(2000) //default: 3000
-                .isDebug(false)
                 .apply();
     }
 }
