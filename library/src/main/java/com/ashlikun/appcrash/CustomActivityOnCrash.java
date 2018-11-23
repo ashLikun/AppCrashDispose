@@ -249,7 +249,6 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The config, or null if not provided.
      */
-
     public static AppCrashConfig getConfigFromIntent(Intent intent) {
         return (AppCrashConfig) intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_CONFIG);
     }
@@ -260,7 +259,6 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The activity log, or null if not provided.
      */
-
     public static String getActivityLogFromIntent(Intent intent) {
         return intent.getStringExtra(CustomActivityOnCrash.EXTRA_ACTIVITY_LOG);
     }
@@ -272,7 +270,6 @@ public final class CustomActivityOnCrash {
      * @param intent  The Intent. Must not be null.
      * @return The full error details.
      */
-
     public static String getAllErrorDetailsFromIntent(Context context, Intent intent) {
         //I don't think that this needs localization because it's a development string...
 
@@ -309,7 +306,6 @@ public final class CustomActivityOnCrash {
         }
         return errorDetails.toString();
     }
-
 
     public static void restartApplication(Activity activity, AppCrashConfig config) {
         final Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
