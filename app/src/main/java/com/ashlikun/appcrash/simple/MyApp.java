@@ -2,7 +2,7 @@ package com.ashlikun.appcrash.simple;
 
 import android.app.Application;
 
-import com.ashlikun.appcrash.config.CaocConfig;
+import com.ashlikun.appcrash.AppCrashConfig;
 
 /**
  * 作者　　: 李坤
@@ -12,15 +12,16 @@ import com.ashlikun.appcrash.config.CaocConfig;
  * 功能介绍：
  */
 
-public class MyApp extends Application{
+public class MyApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        CaocConfig.Builder.create()
+        AppCrashConfig.Builder.create(this)
                 .enabled(true) //default: true
                 .showRestartButton(true) //default: true
                 .trackActivities(true) //default: false
                 .minTimeBetweenCrashesMs(2000) //default: 3000
+                .isDebug(false)
                 .apply();
     }
 }

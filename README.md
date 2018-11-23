@@ -7,12 +7,12 @@
 	compile 'com.github.ashLikun.AppCrashDispose:0.0.1'
 
 ### 2.API
-     CaocConfig.Builder.create()
+    AppCrashConfig.Builder.create(this)
                     .enabled(true) //default: true
                     .showRestartButton(true) //default: true
                     .trackActivities(true) //default: false
                     .minTimeBetweenCrashesMs(2000) //default: 3000
-                    .eventListener()
+                    .isDebug(false)
                     .apply();
 
 
