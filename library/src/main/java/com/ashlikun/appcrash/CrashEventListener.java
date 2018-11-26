@@ -7,7 +7,7 @@ package com.ashlikun.appcrash;
  * <p>
  * 功能介绍：
  */
-public abstract class CrashEventListener implements CustomActivityOnCrash.EventListener {
+public abstract class CrashEventListener implements AppOnCrash.EventListener {
     @Override
     public void onLaunchErrorActivity() {
 

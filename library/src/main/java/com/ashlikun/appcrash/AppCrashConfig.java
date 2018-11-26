@@ -53,7 +53,7 @@ public class AppCrashConfig implements Serializable {
     private int minTimeBetweenCrashesMs = 3000;
     private Integer errorDrawable = null;
     private Class<? extends Activity> errorActivityClass = null;
-    private CustomActivityOnCrash.EventListener eventListener = null;
+    private AppOnCrash.EventListener eventListener = null;
 
     @BackgroundMode
     public int getBackgroundMode() {
@@ -117,11 +117,11 @@ public class AppCrashConfig implements Serializable {
     }
 
 
-    public CustomActivityOnCrash.EventListener getEventListener() {
+    public AppOnCrash.EventListener getEventListener() {
         return eventListener;
     }
 
-    public void setEventListener(CustomActivityOnCrash.EventListener eventListener) {
+    public void setEventListener(AppOnCrash.EventListener eventListener) {
         this.eventListener = eventListener;
     }
 
@@ -136,7 +136,7 @@ public class AppCrashConfig implements Serializable {
 
         public static Builder create(Application application) {
             Builder builder = new Builder(application);
-            AppCrashConfig currentConfig = CustomActivityOnCrash.getConfig();
+            AppCrashConfig currentConfig = AppOnCrash.getConfig();
             AppCrashConfig config = new AppCrashConfig();
             if (currentConfig != null) {
                 config.backgroundMode = currentConfig.backgroundMode;
@@ -245,7 +245,7 @@ public class AppCrashConfig implements Serializable {
          * @throws IllegalArgumentException if the eventListener is an inner or anonymous class
          */
 
-        public Builder eventListener(CustomActivityOnCrash.EventListener eventListener) {
+        public Builder eventListener(AppOnCrash.EventListener eventListener) {
             if (eventListener != null && eventListener.getClass().getEnclosingClass() != null && !Modifier.isStatic(eventListener.getClass().getModifiers())) {
                 throw new IllegalArgumentException("The event listener cannot be an inner or anonymous class, because it will need to be serialized. Change it to a class of its own, or make it a static inner class.");
             } else {
@@ -275,8 +275,8 @@ public class AppCrashConfig implements Serializable {
         }
 
         public void apply() {
-            CustomActivityOnCrash.setConfig(config);
-            CustomActivityOnCrash.install(application);
+            AppOnCrash.setConfig(config);
+            AppOnCrash.install(application);
         }
 
 

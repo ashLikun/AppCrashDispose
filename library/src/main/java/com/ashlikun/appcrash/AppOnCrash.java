@@ -45,7 +45,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 
-public final class CustomActivityOnCrash {
+public final class AppOnCrash {
 
     private final static String TAG = "CustomActivityOnCrash";
 
@@ -81,7 +81,7 @@ public final class CustomActivityOnCrash {
                 }
                 oldHandler = ool;
                 application = app;
-                if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
+                if (config.isEnabled() && config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -92,7 +92,7 @@ public final class CustomActivityOnCrash {
                                     Looper.loop();
                                 } catch (Throwable e) {
                                     if (config.getEventListener() != null) {
-                                        config.getEventListener().onNoCrashError(Looper.getMainLooper().getThread(), e);
+                                        config.getEventListener().onCrashError(Looper.getMainLooper().getThread(), e);
                                     }
                                 }
                             }
@@ -107,15 +107,15 @@ public final class CustomActivityOnCrash {
                             if (errorActivityClass == null) {
                                 errorActivityClass = guessErrorActivityClass(application);
                             }
+                            if (config.getEventListener() != null) {
+                                config.getEventListener().onCrashError(thread, throwable);
+                            }
                             if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
                                 if (oldHandler != null) {
                                     oldHandler.uncaughtException(thread, throwable);
                                     return;
                                 }
                             } else if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
-                                if (config.getEventListener() != null) {
-                                    config.getEventListener().onNoCrashError(thread, throwable);
-                                }
                                 return;
                             } else if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_SHOW_CUSTOM) {
                                 final Intent intent = new Intent(application, errorActivityClass);
@@ -240,7 +240,7 @@ public final class CustomActivityOnCrash {
      */
 
     public static String getStackTraceFromIntent(Intent intent) {
-        return intent.getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE);
+        return intent.getStringExtra(AppOnCrash.EXTRA_STACK_TRACE);
     }
 
     /**
@@ -250,7 +250,7 @@ public final class CustomActivityOnCrash {
      * @return The config, or null if not provided.
      */
     public static AppCrashConfig getConfigFromIntent(Intent intent) {
-        return (AppCrashConfig) intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_CONFIG);
+        return (AppCrashConfig) intent.getSerializableExtra(AppOnCrash.EXTRA_CONFIG);
     }
 
     /**
@@ -260,7 +260,7 @@ public final class CustomActivityOnCrash {
      * @return The activity log, or null if not provided.
      */
     public static String getActivityLogFromIntent(Intent intent) {
-        return intent.getStringExtra(CustomActivityOnCrash.EXTRA_ACTIVITY_LOG);
+        return intent.getStringExtra(AppOnCrash.EXTRA_ACTIVITY_LOG);
     }
 
     /**
@@ -350,7 +350,7 @@ public final class CustomActivityOnCrash {
      * @param config the configuration to use
      */
     public static void setConfig(AppCrashConfig config) {
-        CustomActivityOnCrash.config = config;
+        AppOnCrash.config = config;
         uninstall();
     }
 
@@ -609,8 +609,8 @@ public final class CustomActivityOnCrash {
         void onCloseAppFromErrorActivity();
 
         /**
-         * 当不启动错误页面时候的异常
+         * 当异常的时候
          */
-        void onNoCrashError(Thread t, Throwable e);
+        void onCrashError(Thread t, Throwable e);
     }
 }
