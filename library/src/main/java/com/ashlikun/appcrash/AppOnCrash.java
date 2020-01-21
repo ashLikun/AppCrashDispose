@@ -41,6 +41,7 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeoutException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -103,20 +104,29 @@ public final class AppOnCrash {
                     @Override
                     public void uncaughtException(Thread thread, final Throwable throwable) {
                         if (config.isEnabled()) {
+                            if ("FinalizerWatchdogDaemon".equals(thread.getName()) && throwable instanceof TimeoutException) {
+                                //https://mp.weixin.qq.com/s/uFcFYO2GtWWiblotem2bGg
+                                //ignore it
+                                return;
+                            }
+                            //永不退出
+                            if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
+                                return;
+                            }
                             Class<? extends Activity> errorActivityClass = config.getErrorActivityClass();
                             if (errorActivityClass == null) {
                                 errorActivityClass = guessErrorActivityClass(application);
                             }
+                            //回调出去
                             if (config.getEventListener() != null) {
                                 config.getEventListener().onCrashError(thread, throwable);
                             }
+                            //是否是报错activity错误了
                             if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
                                 if (oldHandler != null) {
                                     oldHandler.uncaughtException(thread, throwable);
                                     return;
                                 }
-                            } else if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
-                                return;
                             } else if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_SHOW_CUSTOM) {
                                 final Intent intent = new Intent(application, errorActivityClass);
                                 StringWriter sw = new StringWriter();
