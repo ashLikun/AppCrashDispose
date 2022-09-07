@@ -25,6 +25,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly rootProject.ext.v7AppCompat
+    compileOnly rootProject.ext.designVersion
+    implementation 'com.github.tiann:FreeReflection:3.1.0'
 }
 apply from: '../maven.gradle'

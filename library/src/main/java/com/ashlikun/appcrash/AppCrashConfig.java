@@ -18,6 +18,7 @@ package com.ashlikun.appcrash;
 
 import android.app.Activity;
 import android.app.Application;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 
@@ -48,12 +49,14 @@ public class AppCrashConfig implements Serializable {
     public static final int BACKGROUND_MODE_CRASH = 2;
     private int backgroundMode = BACKGROUND_MODE_SHOW_CUSTOM;
     private boolean enabled = true;
+    //是否开启了Activity生命周期方法hook，让异常页面关闭
+    private boolean mainHook = true;
     private boolean showRestartButton = true;
     private boolean trackActivities = false;
     private int minTimeBetweenCrashesMs = 3000;
     private Integer errorDrawable = null;
     private Class<? extends Activity> errorActivityClass = null;
-    private AppOnCrash.EventListener eventListener = null;
+    private CrashEventListener eventListener = null;
 
     @BackgroundMode
     public int getBackgroundMode() {
@@ -66,6 +69,14 @@ public class AppCrashConfig implements Serializable {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public boolean isMainHook() {
+        return mainHook;
+    }
+
+    public void setMainHook(boolean mainHook) {
+        this.mainHook = mainHook;
     }
 
     public void setEnabled(boolean enabled) {
@@ -117,11 +128,11 @@ public class AppCrashConfig implements Serializable {
     }
 
 
-    public AppOnCrash.EventListener getEventListener() {
+    public CrashEventListener getEventListener() {
         return eventListener;
     }
 
-    public void setEventListener(AppOnCrash.EventListener eventListener) {
+    public void setEventListener(CrashEventListener eventListener) {
         this.eventListener = eventListener;
     }
 
@@ -245,7 +256,7 @@ public class AppCrashConfig implements Serializable {
          * @throws IllegalArgumentException if the eventListener is an inner or anonymous class
          */
 
-        public Builder eventListener(AppOnCrash.EventListener eventListener) {
+        public Builder eventListener(CrashEventListener eventListener) {
             if (eventListener != null && eventListener.getClass().getEnclosingClass() != null && !Modifier.isStatic(eventListener.getClass().getModifiers())) {
                 throw new IllegalArgumentException("The event listener cannot be an inner or anonymous class, because it will need to be serialized. Change it to a class of its own, or make it a static inner class.");
             } else {

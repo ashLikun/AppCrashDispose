@@ -31,7 +31,6 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
@@ -83,22 +82,9 @@ public final class AppOnCrash {
                 oldHandler = ool;
                 application = app;
                 if (config.isEnabled() && config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            //主线程异常拦截
-                            while (true) {
-                                try {
-                                    //主线程的异常会从这里抛出
-                                    Looper.loop();
-                                } catch (Throwable e) {
-                                    if (config.getEventListener() != null) {
-                                        config.getEventListener().onCrashError(Looper.getMainLooper().getThread(), e);
-                                    }
-                                }
-                            }
-                        }
-                    });
+                    if (config.isMainHook()) {
+                        HookMainHandle.initActivityKiller(app);
+                    }
                 }
                 Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                     @Override
@@ -109,6 +95,14 @@ public final class AppOnCrash {
                                 //ignore it
                                 return;
                             }
+                            if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH && thread == Looper.getMainLooper().getThread()) {
+                                HookMainHandle.isChoreographerException(throwable);
+                                HookMainHandle.safeMode();
+                            }
+                            //回调出去
+                            if (config.getEventListener() != null) {
+                                config.getEventListener().uncaughtExceptionHappened(thread, throwable);
+                            }
                             //永不退出
                             if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
                                 return;
@@ -116,10 +110,6 @@ public final class AppOnCrash {
                             Class<? extends Activity> errorActivityClass = config.getErrorActivityClass();
                             if (errorActivityClass == null) {
                                 errorActivityClass = guessErrorActivityClass(application);
-                            }
-                            //回调出去
-                            if (config.getEventListener() != null) {
-                                config.getEventListener().onCrashError(thread, throwable);
                             }
                             //是否是报错activity错误了
                             if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
@@ -599,28 +589,5 @@ public final class AppOnCrash {
     private static void killCurrentProcess() {
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(10);
-    }
-
-
-    public interface EventListener extends Serializable {
-        /**
-         * 当启动错误页面
-         */
-        void onLaunchErrorActivity();
-
-        /**
-         * 当重新启动
-         */
-        void onRestartAppFromErrorActivity();
-
-        /**
-         * 当关闭
-         */
-        void onCloseAppFromErrorActivity();
-
-        /**
-         * 当异常的时候
-         */
-        void onCrashError(Thread t, Throwable e);
     }
 }
