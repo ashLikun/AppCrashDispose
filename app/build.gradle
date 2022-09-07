@@ -38,6 +38,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.7.0"
     //kotlin 协程
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
+    implementation "com.github.tiann:FreeReflection:3.1.0"
 }
 repositories {
     mavenCentral()
