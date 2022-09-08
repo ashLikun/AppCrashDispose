@@ -95,16 +95,17 @@ public final class AppOnCrash {
                                 //ignore it
                                 return;
                             }
-                            if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH && thread == Looper.getMainLooper().getThread()) {
-                                HookMainHandle.isChoreographerException(throwable);
-                                HookMainHandle.safeMode();
-                            }
                             //回调出去
                             if (config.getEventListener() != null) {
                                 config.getEventListener().uncaughtExceptionHappened(thread, throwable);
                             }
                             //永不退出
                             if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
+                                //主线程处理
+                                if (thread == Looper.getMainLooper().getThread()) {
+                                    HookMainHandle.isChoreographerException(throwable);
+                                    HookMainHandle.safeMode();
+                                }
                                 return;
                             }
                             Class<? extends Activity> errorActivityClass = config.getErrorActivityClass();

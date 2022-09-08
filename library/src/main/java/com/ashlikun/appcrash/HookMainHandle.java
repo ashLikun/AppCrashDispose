@@ -34,7 +34,12 @@ class HookMainHandle {
      */
     static void initActivityKiller(Application app) {
         //解除 android P 反射限制
-        Reflection.unseal(app);
+        try {
+            Reflection.unseal(app);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return;
+        }
         //各版本android的ActivityManager获取方式，finishActivity的参数，token(binder对象)的获取不一样
         if (Build.VERSION.SDK_INT >= 28) {
             sActivityKiller = new ActivityKillerV28();
@@ -52,6 +57,7 @@ class HookMainHandle {
 
         try {
             hookmH();
+
         } catch (Throwable e) {
             e.printStackTrace();
         }
