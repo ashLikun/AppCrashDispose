@@ -27,6 +27,7 @@ import me.weishu.reflection.Reflection;
 class HookMainHandle {
     private static IActivityKiller sActivityKiller;
     private static boolean sIsSafeMode;
+    private static boolean isInitActivityKiller = false;
 
     /**
      * 替换ActivityThread.mH.mCallback，实现拦截Activity生命周期，直接忽略生命周期的异常的话会导致黑屏，目前
@@ -60,6 +61,7 @@ class HookMainHandle {
 
         } catch (Throwable e) {
             e.printStackTrace();
+            isInitActivityKiller = true;
         }
     }
 
@@ -153,6 +155,7 @@ class HookMainHandle {
 
 
     private static void notifyException(Throwable throwable) {
+        AppOnCrash.startErrorAcctivity(throwable);
         if (AppOnCrash.getConfig().getEventListener() == null) {
             return;
         }
@@ -169,6 +172,7 @@ class HookMainHandle {
     }
 
     static void safeMode() {
+        if (!isInitActivityKiller) return;
         if (sIsSafeMode) return;
         sIsSafeMode = true;
         if (AppOnCrash.getConfig().getEventListener() != null) {

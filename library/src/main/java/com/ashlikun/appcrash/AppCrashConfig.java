@@ -49,8 +49,6 @@ public class AppCrashConfig implements Serializable {
     public static final int BACKGROUND_MODE_CRASH = 2;
     private int backgroundMode = BACKGROUND_MODE_SHOW_CUSTOM;
     private boolean enabled = true;
-    //是否开启了Activity生命周期方法hook，让异常页面关闭
-    private boolean mainHook = true;
     private boolean showRestartButton = true;
     private boolean trackActivities = false;
     private int minTimeBetweenCrashesMs = 3000;
@@ -71,13 +69,6 @@ public class AppCrashConfig implements Serializable {
         return enabled;
     }
 
-    public boolean isMainHook() {
-        return mainHook;
-    }
-
-    public void setMainHook(boolean mainHook) {
-        this.mainHook = mainHook;
-    }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;

@@ -50,7 +50,6 @@ public final class AppOnCrash {
     private final static String TAG = "CustomActivityOnCrash";
 
     //Extras passed to the error activity
-    private static final String EXTRA_CONFIG = "com.ashlikun.appcrash.EXTRA_CONFIG";
     private static final String EXTRA_STACK_TRACE = "com.ashlikun.appcrash.EXTRA_STACK_TRACE";
     private static final String EXTRA_ACTIVITY_LOG = "com.ashlikun.appcrash.EXTRA_ACTIVITY_LOG";
 
@@ -81,10 +80,8 @@ public final class AppOnCrash {
                 }
                 oldHandler = ool;
                 application = app;
-                if (config.isEnabled() && config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
-                    if (config.isMainHook()) {
-                        HookMainHandle.initActivityKiller(app);
-                    }
+                if (config.isEnabled()) {
+                    HookMainHandle.initActivityKiller(app);
                 }
                 Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                     @Override
@@ -106,7 +103,6 @@ public final class AppOnCrash {
                                     HookMainHandle.isChoreographerException(throwable);
                                     HookMainHandle.safeMode();
                                 }
-                                return;
                             }
                             Class<? extends Activity> errorActivityClass = config.getErrorActivityClass();
                             if (errorActivityClass == null) {
@@ -119,35 +115,7 @@ public final class AppOnCrash {
                                     return;
                                 }
                             } else if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_SHOW_CUSTOM) {
-                                final Intent intent = new Intent(application, errorActivityClass);
-                                StringWriter sw = new StringWriter();
-                                PrintWriter pw = new PrintWriter(sw);
-                                throwable.printStackTrace(pw);
-                                String stackTraceString = sw.toString();
-
-                                //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
-                                //The limit is 1MB on Android but some devices seem to have it lower.
-                                //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
-                                //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
-                                if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
-                                    String disclaimer = " [stack trace too large]";
-                                    stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
-                                }
-                                intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
-
-                                if (config.isTrackActivities()) {
-                                    String activityLogString = "";
-                                    while (!activityLog.isEmpty()) {
-                                        activityLogString += activityLog.poll();
-                                    }
-                                    intent.putExtra(EXTRA_ACTIVITY_LOG, activityLogString);
-                                }
-                                intent.putExtra(EXTRA_CONFIG, config);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                if (config.getEventListener() != null) {
-                                    config.getEventListener().onLaunchErrorActivity();
-                                }
-                                application.startActivity(intent);
+                                startErrorAcctivity(throwable);
                             } else if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_CRASH) {
                                 if (oldHandler != null) {
                                     oldHandler.uncaughtException(thread, throwable);
@@ -217,6 +185,51 @@ public final class AppOnCrash {
         }
     }
 
+    private static boolean errorActivityIsOpen = false;
+
+    public static synchronized void startErrorAcctivity(final Throwable throwable) {
+        if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_SHOW_CUSTOM && !errorActivityIsOpen) {
+
+            errorActivityIsOpen = true;
+            Class<? extends Activity> errorActivityClass = config.getErrorActivityClass();
+            if (errorActivityClass == null) {
+                errorActivityClass = guessErrorActivityClass(application);
+            }
+            //是否是报错activity错误了
+            if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
+                return;
+            }
+            final Intent intent = new Intent(application, errorActivityClass);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            throwable.printStackTrace(pw);
+            String stackTraceString = sw.toString();
+
+            //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
+            //The limit is 1MB on Android but some devices seem to have it lower.
+            //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
+            //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
+            if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
+                String disclaimer = " [stack trace too large]";
+                stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
+            }
+            intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
+
+            if (config.isTrackActivities()) {
+                String activityLogString = "";
+                while (!activityLog.isEmpty()) {
+                    activityLogString += activityLog.poll();
+                }
+                intent.putExtra(EXTRA_ACTIVITY_LOG, activityLogString);
+            }
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            if (config.getEventListener() != null) {
+                config.getEventListener().onLaunchErrorActivity();
+            }
+            application.startActivity(intent);
+        }
+    }
+
     public static synchronized void uninstall() {
         //卸载后恢复默认的异常处理逻辑，否则主线程再次抛出异常后将导致ANR，并且无法捕获到异常位置
         if (oldHandler != null && oldHandler.getClass().getName().startsWith(CAOC_HANDLER_PACKAGE_NAME)) {
@@ -242,16 +255,6 @@ public final class AppOnCrash {
 
     public static String getStackTraceFromIntent(Intent intent) {
         return intent.getStringExtra(AppOnCrash.EXTRA_STACK_TRACE);
-    }
-
-    /**
-     * Given an Intent, returns the config extra from it.
-     *
-     * @param intent The Intent. Must not be null.
-     * @return The config, or null if not provided.
-     */
-    public static AppCrashConfig getConfigFromIntent(Intent intent) {
-        return (AppCrashConfig) intent.getSerializableExtra(AppOnCrash.EXTRA_CONFIG);
     }
 
     /**

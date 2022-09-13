@@ -20,13 +20,14 @@ import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.os.Bundle;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 
 public final class DefaultErrorActivity extends AppCompatActivity {
@@ -46,7 +47,7 @@ public final class DefaultErrorActivity extends AppCompatActivity {
         Button restartButton = (Button) findViewById(R.id.reStartButton);
         Button copyButton = (Button) findViewById(R.id.copyButton);
 
-        final AppCrashConfig config = AppOnCrash.getConfigFromIntent(getIntent());
+        final AppCrashConfig config = AppOnCrash.getConfig();
 
         if (config.isShowRestartButton()) {
             restartButton.setText(R.string.customactivityoncrash_error_activity_restart_app);
