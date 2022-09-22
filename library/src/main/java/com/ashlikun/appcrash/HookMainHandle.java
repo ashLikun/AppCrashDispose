@@ -58,7 +58,6 @@ class HookMainHandle {
 
         try {
             hookmH();
-
         } catch (Throwable e) {
             e.printStackTrace();
             isInitActivityKiller = true;

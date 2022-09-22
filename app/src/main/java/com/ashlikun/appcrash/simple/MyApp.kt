@@ -17,7 +17,7 @@ class MyApp : Application() {
         AppCrashConfig.Builder.create(this)
             .eventListener(AppCrashEventListener())
             .enabled(true) //default: true
-            .backgroundMode(AppCrashConfig.BACKGROUND_MODE_SHOW_CUSTOM)
+            .backgroundMode(AppCrashConfig.BACKGROUND_MODE_NO_CRASH)
             .showRestartButton(true) //default: true
             .trackActivities(true) //default: false
             .minTimeBetweenCrashesMs(2000) //default: 3000
