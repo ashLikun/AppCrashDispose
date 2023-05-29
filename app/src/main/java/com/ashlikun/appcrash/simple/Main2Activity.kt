@@ -16,7 +16,12 @@ class Main2Activity : AppCompatActivity() {
 //                throw new RuntimeException("aaaaaaaaaa");
 //            }
 //        }, 3000);
-        findViewById<View>(R.id.button).setOnClickListener { v: View? -> throw RuntimeException("aaaaaaaaaa") }
+        findViewById<View>(R.id.button).setOnClickListener { v: View? ->
+            Thread {
+                throw RuntimeException("aaaaaaaaaa")
+            }.start()
+//            throw RuntimeException("aaaaaaaaaa")
+        }
     }
 
     override fun onResume() {

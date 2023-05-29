@@ -33,7 +33,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation rootProject.ext.designVersion
-    implementation 'androidx.constraintlayout:constraintlayout:+'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation project(':library')
     implementation "androidx.core:core-ktx:1.7.0"
     //kotlin 协程

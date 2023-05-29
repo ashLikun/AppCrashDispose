@@ -19,6 +19,12 @@ class MainActivity : AppCompatActivity() {
 //        }, 3000);
 //        findViewById<View>(R.id.button).setOnClickListener { v: View? -> throw RuntimeException("aaaaaaaaaa") }
         findViewById<View>(R.id.button).setOnClickListener { v: View? ->
+//            Thread {
+//                throw RuntimeException("aaaaaaaaaa")
+//            }.start()
+            throw RuntimeException("aaaaaaaaaa11111111")
+        }
+        findViewById<View>(R.id.button2).setOnClickListener { v: View? ->
             startActivity(Intent(this, Main2Activity::class.java))
         }
     }

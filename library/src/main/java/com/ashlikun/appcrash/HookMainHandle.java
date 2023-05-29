@@ -27,7 +27,7 @@ import me.weishu.reflection.Reflection;
 class HookMainHandle {
     private static IActivityKiller sActivityKiller;
     private static boolean sIsSafeMode;
-    private static boolean isInitActivityKiller = false;
+    private static boolean isHookHOk = false;
 
     /**
      * 替换ActivityThread.mH.mCallback，实现拦截Activity生命周期，直接忽略生命周期的异常的话会导致黑屏，目前
@@ -58,9 +58,10 @@ class HookMainHandle {
 
         try {
             hookmH();
+            isHookHOk = true;
         } catch (Throwable e) {
             e.printStackTrace();
-            isInitActivityKiller = true;
+            isHookHOk = false;
         }
     }
 
@@ -72,8 +73,6 @@ class HookMainHandle {
         final int STOP_ACTIVITY_HIDE = 104;
         final int RESUME_ACTIVITY = 107;
         final int DESTROY_ACTIVITY = 109;
-        final int NEW_INTENT = 112;
-        final int RELAUNCH_ACTIVITY = 126;
         Class activityThreadClass = Class.forName("android.app.ActivityThread");
         Object activityThread = activityThreadClass.getDeclaredMethod("currentActivityThread").invoke(null);
 
@@ -169,10 +168,14 @@ class HookMainHandle {
     public static boolean isSafeMode() {
         return sIsSafeMode;
     }
+    public static boolean isHookHOk() {
+        return isHookHOk;
+    }
 
     static void safeMode() {
-        if (!isInitActivityKiller) return;
-        if (sIsSafeMode) return;
+        if (sIsSafeMode) {
+            return;
+        }
         sIsSafeMode = true;
         if (AppOnCrash.getConfig().getEventListener() != null) {
             AppOnCrash.getConfig().getEventListener().enterSafeMode();
@@ -181,12 +184,19 @@ class HookMainHandle {
             try {
                 Looper.loop();
             } catch (Throwable e) {
-                isChoreographerException(e);
+                //只要进入安全模式，那么以后异常就会进入这个方法
+                e.printStackTrace();
                 if (AppOnCrash.getConfig().getEventListener() != null) {
                     AppOnCrash.getConfig().getEventListener().bandageExceptionHappened(e);
                 }
+                if (HookMainHandle.isChoreographerException(e)) {
+                    //重启APP
+                    AppOnCrash.restarteApp();
+                    break;
+                }
             }
         }
+        sIsSafeMode = false;
     }
 
     /**
@@ -196,27 +206,28 @@ class HookMainHandle {
      *
      * @param e
      */
-    static void isChoreographerException(Throwable e) {
-        if (e == null || AppOnCrash.getConfig().getEventListener() == null) {
-            return;
+    static boolean isChoreographerException(Throwable e) {
+        if (e == null) {
+            return false;
         }
         StackTraceElement[] elements = e.getStackTrace();
         if (elements == null) {
-            return;
+            return false;
         }
 
         for (int i = elements.length - 1; i > -1; i--) {
             if (elements.length - i > 20) {
-                return;
+                return false;
             }
             StackTraceElement element = elements[i];
             if ("android.view.Choreographer".equals(element.getClassName())
                     && "Choreographer.java".equals(element.getFileName())
                     && "doFrame".equals(element.getMethodName())) {
 //                AppOnCrash.getConfig().getEventListener().mayBeBlackScreen(e);
-                return;
+                return true;
             }
 
         }
+        return false;
     }
 }

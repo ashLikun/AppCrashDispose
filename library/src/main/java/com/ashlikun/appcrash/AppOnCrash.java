@@ -70,7 +70,7 @@ public final class AppOnCrash {
     /**
      * 安装
      */
-    public static void install(Application app) {
+    public static void install(final Application app) {
         try {
             if (app != null) {
                 final Thread.UncaughtExceptionHandler ool = Thread.getDefaultUncaughtExceptionHandler();
@@ -98,10 +98,23 @@ public final class AppOnCrash {
                             }
                             //永不退出
                             if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_NO_CRASH) {
+                                boolean isNeedReturn = true;
                                 //主线程处理
                                 if (thread == Looper.getMainLooper().getThread()) {
-                                    HookMainHandle.isChoreographerException(throwable);
-                                    HookMainHandle.safeMode();
+                                    if (HookMainHandle.isChoreographerException(throwable)) {
+                                        //重启APP
+                                        restarteApp();
+                                    } else if (HookMainHandle.isHookHOk()) {
+                                        //其他异常进入安全模式，后续的主线程异常都会在安全模式处理
+                                        HookMainHandle.safeMode();
+                                    } else {
+                                        //这里防止生命周期黑屏
+                                        isNeedReturn = false;
+                                    }
+                                }
+                                //停止后续处理
+                                if (isNeedReturn) {
+                                    return;
                                 }
                             }
                             Class<? extends Activity> errorActivityClass = config.getErrorActivityClass();
@@ -187,7 +200,17 @@ public final class AppOnCrash {
 
     private static boolean errorActivityIsOpen = false;
 
+    /**
+     * 重启app
+     */
+    public static void restarteApp() {
+        Intent intent = application.getPackageManager().getLaunchIntentForPackage(application.getPackageName());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        application.startActivity(intent);
+    }
+
     public static synchronized void startErrorAcctivity(final Throwable throwable) {
+        throwable.printStackTrace();
         if (config.getBackgroundMode() == AppCrashConfig.BACKGROUND_MODE_SHOW_CUSTOM && !errorActivityIsOpen) {
 
             errorActivityIsOpen = true;
